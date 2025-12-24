@@ -1,7 +1,7 @@
 # INDEXPRO Dashboard
 
 ## Overview
-A React-based high-fidelity dashboard for tracking stock index potential vacancies (S&P 400), replacement candidates, and market analytics.
+A React-based high-fidelity dashboard for tracking stock index potential vacancies (S&P 400), replacement candidates, and market analytics with a Flask API backend.
 
 ## Tech Stack
 - **Frontend**: React 18 with TypeScript
@@ -9,6 +9,8 @@ A React-based high-fidelity dashboard for tracking stock index potential vacanci
 - **Styling**: Tailwind CSS
 - **UI Components**: Radix UI primitives, shadcn/ui components
 - **Charts**: Recharts
+- **Backend**: Flask with Flask-CORS
+- **Data Processing**: pandas
 
 ## Project Structure
 ```
@@ -25,15 +27,43 @@ A React-based high-fidelity dashboard for tracking stock index potential vacanci
 │   ├── App.tsx             # Main application component
 │   ├── main.tsx            # Application entry point
 │   └── index.css
+├── main.py                 # Flask API backend
 ├── index.html
 ├── package.json
 └── vite.config.ts
 ```
 
+## API Endpoints
+
+### GET /api/vacancy
+Returns a list of potential vacancy risk cards.
+```json
+[{"ticker": "SNV", "price": 45.20, "riskTag": "M&A TARGET", "riskType": "ma", "probability": 92}]
+```
+
+### GET /api/bench
+Returns ranked replacement candidates with fit scores.
+```json
+[{"rank": 1, "ticker": "PATH", "name": "UiPath Inc", "fitScore": 100, "gaapProfitable": true, "marketCap": true, "liquidity": true, "upside": 12.5}]
+```
+
+### GET /api/execution/<ticker>
+Returns live-simulated volume data for a specific stock.
+```json
+{"projectedVolume": 39400000, "currentVolume": 26800000, "avgDailyVolume": 4200000}
+```
+
+## Fit Score Calculation
+- Profitability (GAAP): +40 points
+- Market Cap Valid: +30 points
+- Liquidity Valid: +20 points
+- Sector Match: +10 points
+- Maximum Score: 100 points
+
 ## Development
-- **Run locally**: `npm run dev`
+- **Frontend**: `npm run dev` (port 5000)
+- **Backend**: `python main.py` (port 8000)
 - **Build for production**: `npm run build`
-- **Dev server port**: 5000
 
 ## Deployment
-This is a static frontend application. The build output is in the `build/` directory.
+Frontend is deployed as a static site. Build output is in the `build/` directory.
