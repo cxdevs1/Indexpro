@@ -16,23 +16,29 @@ export function ExecutionDeck({ ticker, currentPrice }: ExecutionDeckProps) {
   const [exitTarget, setExitTarget] = useState('22.50');
   const [simulatedProfit, setSimulatedProfit] = useState<number | null>(null);
   const [volumeData, setVolumeData] = useState<VolumeData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    const fetchVolumeData = async () => {
+    const fetchVolumeData = async (isInitial: boolean = false) => {
       try {
-        setLoading(true);
+        if (isInitial) setInitialLoading(true);
         const response = await fetch(`/api/execution/${ticker}`);
         const data = await response.json();
         setVolumeData(data);
       } catch (error) {
         console.error('Error fetching execution data:', error);
       } finally {
-        setLoading(false);
+        if (isInitial) setInitialLoading(false);
       }
     };
 
-    fetchVolumeData();
+    fetchVolumeData(true);
+
+    const intervalId = setInterval(() => {
+      fetchVolumeData(false);
+    }, 3000);
+
+    return () => clearInterval(intervalId);
   }, [ticker]);
 
   const handleSimulate = () => {
@@ -63,7 +69,7 @@ export function ExecutionDeck({ ticker, currentPrice }: ExecutionDeckProps) {
       <div className="bg-slate rounded-[var(--radius-tight)] p-4 border border-slate-hover">
         <h4 className="text-text-secondary mb-3">Projected Buying Pressure</h4>
         
-        {loading ? (
+        {initialLoading ? (
           <div className="text-muted-blue text-sm mono animate-pulse">Loading...</div>
         ) : (
           <>
