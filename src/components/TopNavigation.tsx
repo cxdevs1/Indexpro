@@ -1,6 +1,9 @@
 import { Bell, Search, User } from 'lucide-react';
+import { useState } from 'react';
 
 export function TopNavigation() {
+  const [isLive, setIsLive] = useState(true);
+
   return (
     <nav className="h-[60px] bg-slate border-b border-slate-hover flex items-center justify-between px-6">
       {/* Logo */}
@@ -23,10 +26,21 @@ export function TopNavigation() {
       {/* Right Actions */}
       <div className="flex items-center gap-4">
         {/* Live Data Toggle */}
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-charcoal rounded-[var(--radius-tight)] border border-electric-green">
-          <div className="w-2 h-2 rounded-full bg-electric-green animate-pulse"></div>
-          <span className="text-sm text-electric-green mono">Live Data: ON</span>
-        </div>
+        <button
+          onClick={() => setIsLive(!isLive)}
+          className={`flex items-center gap-2 px-3 py-1.5 bg-charcoal rounded-[var(--radius-tight)] border transition-colors cursor-pointer ${
+            isLive ? 'border-electric-green' : 'border-orange'
+          }`}
+        >
+          <div className={`w-2 h-2 rounded-full ${
+            isLive ? 'bg-electric-green animate-pulse' : 'bg-orange'
+          }`}></div>
+          <span className={`text-sm mono ${
+            isLive ? 'text-electric-green' : 'text-orange'
+          }`}>
+            Live Data: {isLive ? 'ON' : 'PAUSED'}
+          </span>
+        </button>
 
         {/* Notification Bell */}
         <button className="relative p-2 hover:bg-slate-hover rounded-[var(--radius-tight)] transition-colors">
