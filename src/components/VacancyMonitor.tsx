@@ -1,23 +1,45 @@
 import { Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface RiskCard {
   ticker: string;
   price: number;
   riskTag: string;
-  riskType: 'ma' | 'marketcap';
+  riskType: string;
   probability: number;
 }
 
-const riskCards: RiskCard[] = [
-  { ticker: 'SNV', price: 45.20, riskTag: 'M&A TARGET', riskType: 'ma', probability: 92 },
-  { ticker: 'ZION', price: 38.75, riskTag: 'MARKET CAP < $5B', riskType: 'marketcap', probability: 78 },
-  { ticker: 'CBSH', price: 52.10, riskTag: 'M&A TARGET', riskType: 'ma', probability: 85 },
-  { ticker: 'FNB', price: 13.45, riskTag: 'MARKET CAP < $5B', riskType: 'marketcap', probability: 71 },
-  { ticker: 'UMBF', price: 89.30, riskTag: 'M&A TARGET', riskType: 'ma', probability: 68 },
-  { ticker: 'WTFC', price: 75.85, riskTag: 'MARKET CAP < $5B', riskType: 'marketcap', probability: 82 },
-];
-
 export function VacancyMonitor() {
+  const [riskCards, setRiskCards] = useState<RiskCard[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVacancies = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/vacancy');
+        const data = await response.json();
+        setRiskCards(data);
+      } catch (error) {
+        console.error('Error fetching vacancy data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVacancies();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-full bg-slate rounded-[var(--radius-tight)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-muted-blue text-sm mono animate-pulse">Scanning Market Data...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full bg-slate rounded-[var(--radius-tight)] flex flex-col overflow-hidden">
       {/* Header */}

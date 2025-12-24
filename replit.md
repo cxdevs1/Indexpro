@@ -65,5 +65,15 @@ Returns live-simulated volume data for a specific stock.
 - **Backend**: `python main.py` (port 8000)
 - **Build for production**: `npm run build`
 
+### Vite Proxy Configuration
+The frontend uses a Vite proxy to route `/api/*` requests to the backend at `localhost:8000`, avoiding CORS issues during development.
+
+## Recent Changes
+- **2024-12-24**: Connected React frontend to Flask backend
+  - BenchLeaderboard.tsx fetches from `/api/bench`
+  - VacancyMonitor.tsx fetches from `/api/vacancy`
+  - ExecutionDeck.tsx fetches from `/api/execution/<ticker>`
+  - Added loading states with "Scanning Market Data..." message
+
 ## Deployment
 Frontend is deployed as a static site. Build output is in the `build/` directory.

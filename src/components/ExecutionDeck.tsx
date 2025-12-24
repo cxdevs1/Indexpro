@@ -1,14 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ExecutionDeckProps {
   ticker: string;
   currentPrice: number;
 }
 
+interface VolumeData {
+  projectedVolume: number;
+  currentVolume: number;
+  avgDailyVolume: number;
+}
+
 export function ExecutionDeck({ ticker, currentPrice }: ExecutionDeckProps) {
   const [shares, setShares] = useState('1000');
   const [exitTarget, setExitTarget] = useState('22.50');
   const [simulatedProfit, setSimulatedProfit] = useState<number | null>(null);
+  const [volumeData, setVolumeData] = useState<VolumeData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVolumeData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/execution/${ticker}`);
+        const data = await response.json();
+        setVolumeData(data);
+      } catch (error) {
+        console.error('Error fetching execution data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVolumeData();
+  }, [ticker]);
 
   const handleSimulate = () => {
     const sharesNum = parseFloat(shares) || 0;
@@ -17,10 +42,20 @@ export function ExecutionDeck({ ticker, currentPrice }: ExecutionDeckProps) {
     setSimulatedProfit(profit);
   };
 
-  // Time to market close (Mock countdown)
   const hours = 4;
   const minutes = 12;
   const seconds = 35;
+
+  const formatVolume = (vol: number) => {
+    if (vol >= 1000000) {
+      return `${(vol / 1000000).toFixed(1)}M`;
+    }
+    return vol.toLocaleString();
+  };
+
+  const projectedVol = volumeData?.projectedVolume || 39400000;
+  const currentVol = volumeData?.currentVolume || 26800000;
+  const progressPercent = (currentVol / projectedVol) * 100;
 
   return (
     <div className="h-full flex flex-col gap-4">
@@ -28,30 +63,39 @@ export function ExecutionDeck({ ticker, currentPrice }: ExecutionDeckProps) {
       <div className="bg-slate rounded-[var(--radius-tight)] p-4 border border-slate-hover">
         <h4 className="text-text-secondary mb-3">Projected Buying Pressure</h4>
         
-        {/* Big Metric */}
-        <div className="mb-2">
-          <div className="mono text-off-white" style={{ fontSize: '32px', lineHeight: '1.2' }}>
-            39.4M
-          </div>
-          <div className="text-sm text-text-secondary">Shares</div>
-        </div>
+        {loading ? (
+          <div className="text-muted-blue text-sm mono animate-pulse">Loading...</div>
+        ) : (
+          <>
+            {/* Big Metric */}
+            <div className="mb-2">
+              <div className="mono text-off-white" style={{ fontSize: '32px', lineHeight: '1.2' }}>
+                {formatVolume(projectedVol)}
+              </div>
+              <div className="text-sm text-text-secondary">Shares</div>
+            </div>
 
-        <div className="text-sm text-text-secondary mb-3">Required Passive Inflow</div>
+            <div className="text-sm text-text-secondary mb-3">Required Passive Inflow</div>
 
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs text-text-secondary mono">
-            <span>Current Vol</span>
-            <span>Required Vol</span>
-          </div>
-          <div className="h-2 bg-charcoal rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-muted-blue to-electric-green" style={{ width: '68%' }}></div>
-          </div>
-          <div className="flex justify-between text-xs mono">
-            <span className="text-muted-blue">26.8M</span>
-            <span className="text-electric-green">39.4M</span>
-          </div>
-        </div>
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-text-secondary mono">
+                <span>Current Vol</span>
+                <span>Required Vol</span>
+              </div>
+              <div className="h-2 bg-charcoal rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-muted-blue to-electric-green" 
+                  style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                ></div>
+              </div>
+              <div className="flex justify-between text-xs mono">
+                <span className="text-muted-blue">{formatVolume(currentVol)}</span>
+                <span className="text-electric-green">{formatVolume(projectedVol)}</span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Widget 2: Countdown */}

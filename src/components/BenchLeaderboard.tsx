@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Candidate {
   rank: number;
@@ -12,77 +12,43 @@ interface Candidate {
   upside: number;
 }
 
-const candidates: Candidate[] = [
-  {
-    rank: 1,
-    ticker: 'PATH',
-    name: 'UiPath Inc',
-    fitScore: 98,
-    gaapProfitable: true,
-    marketCap: true,
-    liquidity: true,
-    upside: 12,
-  },
-  {
-    rank: 2,
-    ticker: 'BILL',
-    name: 'Bill.com Holdings',
-    fitScore: 95,
-    gaapProfitable: true,
-    marketCap: true,
-    liquidity: true,
-    upside: 9.5,
-  },
-  {
-    rank: 3,
-    ticker: 'MNDY',
-    name: 'Monday.com Ltd',
-    fitScore: 93,
-    gaapProfitable: true,
-    marketCap: true,
-    liquidity: true,
-    upside: 8.2,
-  },
-  {
-    rank: 4,
-    ticker: 'PCTY',
-    name: 'Paylocity Holding',
-    fitScore: 91,
-    gaapProfitable: true,
-    marketCap: true,
-    liquidity: true,
-    upside: 7.8,
-  },
-  {
-    rank: 5,
-    ticker: 'EEFT',
-    name: 'Euronet Worldwide',
-    fitScore: 89,
-    gaapProfitable: true,
-    marketCap: true,
-    liquidity: true,
-    upside: 6.4,
-  },
-  {
-    rank: 6,
-    ticker: 'WEX',
-    name: 'WEX Inc',
-    fitScore: 87,
-    gaapProfitable: true,
-    marketCap: true,
-    liquidity: true,
-    upside: 5.9,
-  },
-];
-
 interface BenchLeaderboardProps {
   selectedTicker: string | null;
   onSelectTicker: (ticker: string) => void;
 }
 
 export function BenchLeaderboard({ selectedTicker, onSelectTicker }: BenchLeaderboardProps) {
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All');
   const tabs = ['All', 'Tech', 'Healthcare', 'Industrial'];
+
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/bench');
+        const data = await response.json();
+        setCandidates(data);
+      } catch (error) {
+        console.error('Error fetching bench data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCandidates();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-full bg-slate rounded-[var(--radius-tight)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-muted-blue text-lg mono animate-pulse">Scanning Market Data...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full bg-slate rounded-[var(--radius-tight)] flex flex-col overflow-hidden">
