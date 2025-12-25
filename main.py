@@ -8,6 +8,7 @@ CORS(app)
 
 def calculate_fit_score(candidate):
     score = 0
+    
     if candidate.get('profitability', False):
         score += 40
     if candidate.get('market_cap_valid', False):
@@ -16,6 +17,15 @@ def calculate_fit_score(candidate):
         score += 20
     if candidate.get('sector_match', False):
         score += 10
+    
+    current_index = candidate.get('current_index', 'None')
+    
+    if current_index == 'S&P SmallCap 600' and candidate.get('market_cap_valid', False):
+        score += 15
+    
+    if current_index == 'S&P MidCap 400' and candidate.get('market_cap', 0) > 15:
+        score += 25
+    
     return score
 
 VACANCY_DATA = [
@@ -28,20 +38,24 @@ VACANCY_DATA = [
 ]
 
 CANDIDATE_RAW_DATA = [
-    {'ticker': 'PATH', 'name': 'UiPath Inc', 'profitability': True, 'market_cap_valid': True, 'liquidity_valid': True, 'sector_match': True, 'upside': 12.5},
-    {'ticker': 'BILL', 'name': 'Bill.com Holdings', 'profitability': True, 'market_cap_valid': True, 'liquidity_valid': True, 'sector_match': False, 'upside': 9.5},
-    {'ticker': 'MNDY', 'name': 'Monday.com Ltd', 'profitability': True, 'market_cap_valid': True, 'liquidity_valid': True, 'sector_match': False, 'upside': 8.2},
-    {'ticker': 'PCTY', 'name': 'Paylocity Holding', 'profitability': True, 'market_cap_valid': True, 'liquidity_valid': True, 'sector_match': False, 'upside': 7.8},
-    {'ticker': 'EEFT', 'name': 'Euronet Worldwide', 'profitability': True, 'market_cap_valid': True, 'liquidity_valid': False, 'sector_match': True, 'upside': 6.4},
-    {'ticker': 'WEX', 'name': 'WEX Inc', 'profitability': True, 'market_cap_valid': True, 'liquidity_valid': False, 'sector_match': True, 'upside': 5.9},
-    {'ticker': 'DUOL', 'name': 'Duolingo Inc', 'profitability': True, 'market_cap_valid': True, 'liquidity_valid': True, 'sector_match': False, 'upside': 5.2},
-    {'ticker': 'APPF', 'name': 'AppFolio Inc', 'profitability': True, 'market_cap_valid': False, 'liquidity_valid': True, 'sector_match': True, 'upside': 4.8},
-    {'ticker': 'CWAN', 'name': 'Clearwater Analytics', 'profitability': False, 'market_cap_valid': True, 'liquidity_valid': True, 'sector_match': True, 'upside': 4.1},
-    {'ticker': 'FRSH', 'name': 'Freshworks Inc', 'profitability': False, 'market_cap_valid': True, 'liquidity_valid': True, 'sector_match': False, 'upside': 3.5},
+    {'ticker': 'PATH', 'name': 'UiPath Inc', 'profitability': True, 'market_cap_valid': True, 'market_cap': 8.5, 'liquidity_valid': True, 'sector_match': True, 'upside': 12.5, 'current_index': 'None'},
+    {'ticker': 'DECK', 'name': 'Deckers Outdoor', 'profitability': True, 'market_cap_valid': True, 'market_cap': 24.8, 'liquidity_valid': True, 'sector_match': True, 'upside': 18.2, 'current_index': 'S&P MidCap 400'},
+    {'ticker': 'ELF', 'name': 'Elf Beauty Inc', 'profitability': True, 'market_cap_valid': True, 'market_cap': 7.2, 'liquidity_valid': True, 'sector_match': True, 'upside': 14.8, 'current_index': 'S&P SmallCap 600'},
+    {'ticker': 'BILL', 'name': 'Bill.com Holdings', 'profitability': True, 'market_cap_valid': True, 'market_cap': 6.8, 'liquidity_valid': True, 'sector_match': False, 'upside': 9.5, 'current_index': 'None'},
+    {'ticker': 'MNDY', 'name': 'Monday.com Ltd', 'profitability': True, 'market_cap_valid': True, 'market_cap': 12.1, 'liquidity_valid': True, 'sector_match': False, 'upside': 8.2, 'current_index': 'None'},
+    {'ticker': 'PCTY', 'name': 'Paylocity Holding', 'profitability': True, 'market_cap_valid': True, 'market_cap': 9.4, 'liquidity_valid': True, 'sector_match': False, 'upside': 7.8, 'current_index': 'None'},
+    {'ticker': 'EEFT', 'name': 'Euronet Worldwide', 'profitability': True, 'market_cap_valid': True, 'market_cap': 5.2, 'liquidity_valid': False, 'sector_match': True, 'upside': 6.4, 'current_index': 'None'},
+    {'ticker': 'WEX', 'name': 'WEX Inc', 'profitability': True, 'market_cap_valid': True, 'market_cap': 7.8, 'liquidity_valid': False, 'sector_match': True, 'upside': 5.9, 'current_index': 'None'},
+    {'ticker': 'DUOL', 'name': 'Duolingo Inc', 'profitability': True, 'market_cap_valid': True, 'market_cap': 11.5, 'liquidity_valid': True, 'sector_match': False, 'upside': 5.2, 'current_index': 'None'},
+    {'ticker': 'APPF', 'name': 'AppFolio Inc', 'profitability': True, 'market_cap_valid': False, 'market_cap': 3.2, 'liquidity_valid': True, 'sector_match': True, 'upside': 4.8, 'current_index': 'S&P SmallCap 600'},
+    {'ticker': 'CWAN', 'name': 'Clearwater Analytics', 'profitability': False, 'market_cap_valid': True, 'market_cap': 5.8, 'liquidity_valid': True, 'sector_match': True, 'upside': 4.1, 'current_index': 'None'},
+    {'ticker': 'FRSH', 'name': 'Freshworks Inc', 'profitability': False, 'market_cap_valid': True, 'market_cap': 4.5, 'liquidity_valid': True, 'sector_match': False, 'upside': 3.5, 'current_index': 'None'},
 ]
 
 EXECUTION_DATA = {
     'PATH': {'projectedVolume': 39400000, 'currentVolume': 26800000, 'avgDailyVolume': 4200000},
+    'DECK': {'projectedVolume': 52000000, 'currentVolume': 38500000, 'avgDailyVolume': 5800000},
+    'ELF': {'projectedVolume': 31200000, 'currentVolume': 22100000, 'avgDailyVolume': 3400000},
     'BILL': {'projectedVolume': 28500000, 'currentVolume': 19200000, 'avgDailyVolume': 3100000},
     'MNDY': {'projectedVolume': 22100000, 'currentVolume': 15400000, 'avgDailyVolume': 2800000},
     'PCTY': {'projectedVolume': 18900000, 'currentVolume': 12100000, 'avgDailyVolume': 2200000},
@@ -65,7 +79,8 @@ def get_bench():
             'gaapProfitable': candidate['profitability'],
             'marketCap': candidate['market_cap_valid'],
             'liquidity': candidate['liquidity_valid'],
-            'upside': candidate['upside']
+            'upside': candidate['upside'],
+            'currentIndex': candidate['current_index']
         })
     
     candidates.sort(key=lambda x: x['fitScore'], reverse=True)
