@@ -10,6 +10,7 @@ interface Candidate {
   marketCap: boolean;
   liquidity: boolean;
   upside: number;
+  currentIndex: string;
 }
 
 interface BenchLeaderboardProps {
@@ -21,7 +22,7 @@ export function BenchLeaderboard({ selectedTicker, onSelectTicker }: BenchLeader
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All');
-  const tabs = ['All', 'Tech', 'Healthcare', 'Industrial'];
+  const tabs = ['All', 'SmallCap Gems', 'MidCap Targets', 'S&P 500 Whales'];
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -39,6 +40,19 @@ export function BenchLeaderboard({ selectedTicker, onSelectTicker }: BenchLeader
 
     fetchCandidates();
   }, []);
+
+  const filteredCandidates = candidates.filter((candidate) => {
+    switch (activeTab) {
+      case 'SmallCap Gems':
+        return candidate.currentIndex === 'None' || candidate.currentIndex === 'S&P SmallCap 600';
+      case 'MidCap Targets':
+        return candidate.currentIndex === 'S&P SmallCap 600';
+      case 'S&P 500 Whales':
+        return candidate.currentIndex === 'S&P MidCap 400';
+      default:
+        return true;
+    }
+  });
 
   if (loading) {
     return (
@@ -100,9 +114,9 @@ export function BenchLeaderboard({ selectedTicker, onSelectTicker }: BenchLeader
             </tr>
           </thead>
           <tbody>
-            {candidates.map((candidate) => {
+            {filteredCandidates.map((candidate, index) => {
               const isSelected = selectedTicker === candidate.ticker;
-              const isTopRank = candidate.rank === 1;
+              const isTopRank = index === 0;
 
               return (
                 <tr
@@ -121,13 +135,30 @@ export function BenchLeaderboard({ selectedTicker, onSelectTicker }: BenchLeader
                   {/* Rank */}
                   <td className="px-4 py-4">
                     <span className={`text-2xl mono ${isTopRank ? 'text-electric-green' : 'text-off-white'}`}>
-                      #{candidate.rank}
+                      #{index + 1}
                     </span>
                   </td>
 
-                  {/* Ticker */}
+                  {/* Ticker with Badge */}
                   <td className="px-4 py-4">
-                    <span className="mono text-off-white">{candidate.ticker}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="mono text-off-white">{candidate.ticker}</span>
+                      {candidate.currentIndex === 'S&P SmallCap 600' && (
+                        <span className="px-1.5 py-0.5 text-[10px] bg-muted-blue/20 text-muted-blue rounded border border-muted-blue/30 uppercase">
+                          Promotion
+                        </span>
+                      )}
+                      {candidate.currentIndex === 'None' && (
+                        <span className="px-1.5 py-0.5 text-[10px] bg-electric-green/20 text-electric-green rounded border border-electric-green/30 uppercase">
+                          Fresh Add
+                        </span>
+                      )}
+                      {candidate.currentIndex === 'S&P MidCap 400' && (
+                        <span className="px-1.5 py-0.5 text-[10px] bg-orange/20 text-orange rounded border border-orange/30 uppercase">
+                          Whale
+                        </span>
+                      )}
+                    </div>
                   </td>
 
                   {/* Name */}
@@ -157,7 +188,7 @@ export function BenchLeaderboard({ selectedTicker, onSelectTicker }: BenchLeader
                             stroke="currentColor"
                             strokeWidth="3"
                             fill="none"
-                            strokeDasharray={`${(candidate.fitScore / 100) * 125.6} 125.6`}
+                            strokeDasharray={`${(Math.min(candidate.fitScore, 125) / 125) * 125.6} 125.6`}
                             className="text-electric-green"
                           />
                         </svg>
