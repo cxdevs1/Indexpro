@@ -1,9 +1,11 @@
 import { Bell, Search, User } from 'lucide-react';
-import { useState } from 'react';
 
-export function TopNavigation() {
-  const [isLive, setIsLive] = useState(true);
+interface TopNavigationProps {
+  isLive: boolean;
+  setIsLive: (isLive: boolean) => void;
+}
 
+export function TopNavigation({ isLive, setIsLive }: TopNavigationProps) {
   return (
     <nav className="h-[60px] bg-slate border-b border-slate-hover flex items-center justify-between px-6">
       {/* Logo */}

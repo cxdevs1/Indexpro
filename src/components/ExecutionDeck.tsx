@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 interface ExecutionDeckProps {
   ticker: string;
   currentPrice: number;
+  isLive: boolean;
 }
 
 interface VolumeData {
@@ -11,7 +12,7 @@ interface VolumeData {
   avgDailyVolume: number;
 }
 
-export function ExecutionDeck({ ticker, currentPrice }: ExecutionDeckProps) {
+export function ExecutionDeck({ ticker, currentPrice, isLive }: ExecutionDeckProps) {
   const [shares, setShares] = useState('1000');
   const [exitTarget, setExitTarget] = useState('22.50');
   const [simulatedProfit, setSimulatedProfit] = useState<number | null>(null);
@@ -34,12 +35,14 @@ export function ExecutionDeck({ ticker, currentPrice }: ExecutionDeckProps) {
 
     fetchVolumeData(true);
 
-    const intervalId = setInterval(() => {
-      fetchVolumeData(false);
-    }, 3000);
+    if (isLive) {
+      const intervalId = setInterval(() => {
+        fetchVolumeData(false);
+      }, 3000);
 
-    return () => clearInterval(intervalId);
-  }, [ticker]);
+      return () => clearInterval(intervalId);
+    }
+  }, [ticker, isLive]);
 
   const handleSimulate = () => {
     const sharesNum = parseFloat(shares) || 0;

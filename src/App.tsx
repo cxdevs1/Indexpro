@@ -16,10 +16,15 @@ const tickerPrices: Record<string, number> = {
   'PCTY': 168.75,
   'EEFT': 94.40,
   'WEX': 187.90,
+  'DECK': 935.20,
+  'ELF': 168.40,
+  'APPF': 240.50
 };
 
 export default function App() {
   const [selectedTicker, setSelectedTicker] = useState<string>('PATH');
+  // LIFTED STATE: Controls the heartbeat of the entire app
+  const [isLive, setIsLive] = useState(true);
 
   const currentTickerData: TickerData = {
     ticker: selectedTicker,
@@ -28,8 +33,8 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col bg-charcoal">
-      {/* Top Navigation */}
-      <TopNavigation />
+      {/* Top Navigation now controls the global 'isLive' state */}
+      <TopNavigation isLive={isLive} setIsLive={setIsLive} />
 
       {/* Main Workspace */}
       <div className="flex-1 overflow-hidden">
@@ -47,11 +52,12 @@ export default function App() {
             />
           </div>
 
-          {/* Right Column: Execution Deck (25%) */}
+          {/* Right Column: Execution Deck (25%) - Now respects 'isLive' */}
           <div className="w-[25%] flex-shrink-0">
             <ExecutionDeck
               ticker={currentTickerData.ticker}
               currentPrice={currentTickerData.price}
+              isLive={isLive}
             />
           </div>
         </div>
